@@ -1,0 +1,15 @@
+# ---- 本地配置（含真实 Key，绝对不能提交） ----
+config.local.js
+
+# ---- 构建产物与打包文件（可随时重新生成） ----
+dist/
+netlify-deploy/
+*.zip
+
+# ---- 系统与编辑器 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.log

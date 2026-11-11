@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>避雷吧 · 高分餐厅避雷地图（交互原型）</title>
+<meta name="description" content="把高分榜上「评分与真实体验落差最大」的餐厅标进地图。演示原型，数据为虚构示例。">
+<meta property="og:title" content="避雷吧 · 高分餐厅避雷地图">
+<meta property="og:description" content="4.8 分不一定好吃。把评分与真实体验落差最大的店，标进一张可查、可报、可收藏的地图。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23f6f1e7'/%3E%3Cpath d='M34 10 18 36h12l-4 18 20-28H34l4-16z' fill='%23b23a2b'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- 桌面端说明栏 -->
+  <aside class="intro">
+    <p class="intro-eyebrow">交互原型 · 高分餐厅避雷</p>
+    <h1 class="intro-title">避雷吧<span class="wordmark">AVOID&nbsp;THE&nbsp;TRAP</span></h1>
+    <p class="intro-lede">4.8 分不一定好吃。把高分榜上「评分与真实体验落差最大」的店，标进一张可查、可报、可收藏的地图。</p>
+
+    <ol class="intro-list">
+      <li class="intro-item">
+        <span class="intro-num">01</span>
+        <div><b>评分之外，再给一个推荐度</b>
+          <p>平台 4.8 分，真实推荐度可能只有 12%。两个数字并排放在一起，落差自己会说话。</p></div>
+      </li>
+      <li class="intro-item">
+        <span class="intro-num">02</span>
+        <div><b>拆开雷点，而不是一句差评</b>
+          <p>排队久、分量少、预制菜、疑似刷分……不同雷点的应对方式完全不同。</p></div>
+      </li>
+      <li class="intro-item">
+        <span class="intro-num">03</span>
+        <div><b>不只劝退，也给替代方案</b>
+          <p>每家店都写「如果一定要去」的建议，以及值得点的菜。</p></div>
+      </li>
+    </ol>
+
+    <div class="legend">
+      <span class="legend-item"><i class="dot lvl-high"></i>建议避雷 · 评分与体验落差大</span>
+      <span class="legend-item"><i class="dot lvl-mid"></i>谨慎前往 · 有明显短板</span>
+      <span class="legend-item"><i class="dot lvl-low"></i>值得一试 · 高分且口碑稳</span>
+    </div>
+
+    <p class="intro-note">演示原型：餐厅名称、评分与记录全部为虚构示例，不指向任何真实商户，也不构成消费建议。</p>
+  </aside>
+
+  <!-- 手机 -->
+  <div class="device">
+    <div class="screen">
+      <div class="notch" aria-hidden="true"></div>
+
+      <div class="statusbar">
+        <span class="sb-time">12:24</span>
+        <span class="sb-right" aria-hidden="true">
+          <svg width="17" height="11" viewBox="0 0 17 11"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+          <svg width="15" height="11" viewBox="0 0 15 11"><path d="M7.5 10.2 5.2 7.6a3.6 3.6 0 0 1 4.6 0L7.5 10.2Zm0-4.4a6 6 0 0 0-4.1 1.6L1.9 5.9a8.4 8.4 0 0 1 11.2 0l-1.5 1.5a6 6 0 0 0-4.1-1.6Zm0-3.6a9.5 9.5 0 0 0-6.5 2.5L-.4 3.3a11.9 11.9 0 0 1 15.8 0L14 4.7a9.5 9.5 0 0 0-6.5-2.5Z"/></svg>
+          <svg width="25" height="12" viewBox="0 0 25 12"><rect x=".5" y=".5" width="21" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="1.8"/><path d="M23 4v4a2.2 2.2 0 0 0 0-4Z" opacity=".5"/></svg>
+        </span>
+      </div>
+
+      <main class="app" id="app">
+
+        <!-- ============ 地图 ============ -->
+        <section class="view view-map is-active" id="view-map" data-view="map">
+          <div class="map-canvas" id="mapCanvas">
+            <div class="tmap" id="tmap" hidden></div>
+            <div class="tmap-heat" id="tmapHeat" hidden></div>
+            <div class="tmap-pins" id="tmapPins" hidden></div>
+            <div class="map-layer" id="mapLayer">
+              <svg class="map-svg" viewBox="0 0 390 732" preserveAspectRatio="none" aria-hidden="true">
+                <defs>
+                  <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+                    <path d="M42 0H0V42" fill="none" stroke="#e6dac5" stroke-width="1" opacity=".7"/>
+                  </pattern>
+                  <linearGradient id="riverGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0" stop-color="#d6e6e6"/>
+                    <stop offset="1" stop-color="#c3d9db"/>
+                  </linearGradient>
+                </defs>
+
+                <rect width="390" height="732" fill="#f4edde"/>
+                <rect width="390" height="732" fill="url(#grid)"/>
+
+                <g class="districts">
+                  <path d="M-10,150 L112,138 L158,206 L150,300 L64,344 L-10,318 Z" fill="#f9f3e5" opacity=".95"/>
+                  <path d="M120,206 L236,196 L258,300 L240,404 L140,430 L118,330 Z" fill="#f7f0e1" opacity=".95"/>
+                  <path d="M236,120 L352,110 L378,236 L306,296 L252,262 Z" fill="#faf4e7" opacity=".95"/>
+                  <path d="M262,238 L390,214 L390,520 L300,548 L262,430 Z" fill="#f3ead9" opacity=".95"/>
+                  <path d="M42,430 L240,414 L258,612 L140,706 L28,614 Z" fill="#f8f1e2" opacity=".95"/>
+                  <path d="M52,-12 L268,-12 L276,104 L120,126 Z" fill="#f9f3e5" opacity=".95"/>
+                </g>
+
+                <g class="blocks" fill="none" stroke="#e3d5bd" stroke-width="1" opacity=".75">
+                  <rect x="96" y="244" width="34" height="24" rx="4"/>
+                  <rect x="138" y="232" width="28" height="34" rx="4"/>
+                  <rect x="176" y="262" width="40" height="26" rx="4"/>
+                  <rect x="122" y="300" width="30" height="22" rx="4"/>
+                  <rect x="160" y="330" width="26" height="30" rx="4"/>
+                  <rect x="198" y="344" width="34" height="22" rx="4"/>
+                  <rect x="86" y="300" width="26" height="26" rx="4"/>
+                  <rect x="60" y="352" width="32" height="22" rx="4"/>
+                  <rect x="214" y="250" width="26" height="30" rx="4"/>
+                  <rect x="248" y="300" width="30" height="22" rx="4"/>
+                  <rect x="296" y="248" width="30" height="26" rx="4"/>
+                  <rect x="316" y="366" width="34" height="24" rx="4"/>
+                  <rect x="282" y="404" width="26" height="30" rx="4"/>
+                  <rect x="96" y="424" width="30" height="24" rx="4"/>
+                  <rect x="140" y="470" width="26" height="32" rx="4"/>
+                  <rect x="178" y="516" width="34" height="24" rx="4"/>
+                  <rect x="86" y="524" width="28" height="22" rx="4"/>
+                </g>
+
+                <g class="parks" fill="#dfe7d1" opacity=".9">
+                  <ellipse cx="96" cy="320" rx="21" ry="14"/>
+                  <ellipse cx="80" cy="266" rx="16" ry="11"/>
+                  <ellipse cx="330" cy="336" rx="26" ry="19"/>
+                  <circle cx="222" cy="316" r="7"/>
+                </g>
+
+                <path d="M-10,296 C 60,292 96,304 132,300 C 176,295 204,310 228,300 C 240,295 248,290 258,288"
+                      fill="none" stroke="#d6e6e6" stroke-width="9" stroke-linecap="round" opacity=".95"/>
+
+                <path d="M246,-20 C 258,60 252,140 258,220 C 265,300 258,368 268,430 C 276,500 248,566 258,640 L262,752"
+                      fill="none" stroke="#c3d9db" stroke-width="26" opacity=".35"/>
+                <path d="M246,-20 C 258,60 252,140 258,220 C 265,300 258,368 268,430 C 276,500 248,566 258,640 L262,752"
+                      fill="none" stroke="url(#riverGrad)" stroke-width="17" stroke-linecap="round"/>
+
+                <g stroke="#e8dcc6" stroke-width="2.5" stroke-linecap="round">
+                  <path d="M245,168 L268,164"/>
+                  <path d="M250,300 L270,302"/>
+                  <path d="M262,470 L282,472"/>
+                </g>
+
+                <g fill="none" stroke="#e0d1b6" stroke-width="1.2" stroke-dasharray="4 5" opacity=".9">
+                  <ellipse cx="196" cy="352" rx="86" ry="70" transform="rotate(-14 196 352)"/>
+                  <ellipse cx="196" cy="352" rx="142" ry="116" transform="rotate(-14 196 352)"/>
+                </g>
+
+                <g class="map-labels" fill="#a6977f" font-size="10.5" font-weight="500" letter-spacing="2.2" text-anchor="middle">
+                  <text x="160" y="80">宝山</text>
+                  <text x="96" y="252">普陀</text>
+                  <text x="112" y="356">长宁</text>
+                  <text x="176" y="306">静安</text>
+                  <text x="238" y="222">虹口</text>
+                  <text x="300" y="180">杨浦</text>
+                  <text x="226" y="342">黄浦</text>
+                  <text x="152" y="404">徐汇</text>
+                  <text x="316" y="300">浦东</text>
+                  <text x="140" y="576">闵行</text>
+                </g>
+                <text x="0" y="0" fill="#8fb3b6" font-size="9.5" letter-spacing="3"
+                      transform="translate(282,404) rotate(78)">黄 浦 江</text>
+              </svg>
+
+              <div class="heat-layer" id="heatLayer"></div>
+              <div class="pin-layer" id="pinLayer"></div>
+            </div>
+          </div>
+
+          <div class="map-top">
+            <div class="map-top-row">
+              <button class="city-btn" data-action="city">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.6"/></svg>
+                上海 <span class="chev">▾</span>
+              </button>
+              <span class="demo-pill">虚构演示</span>
+            </div>
+            <div class="search" id="search">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4.5 4.5"/></svg>
+              <input id="searchInput" type="search" placeholder="搜店名、菜系或商圈" aria-label="搜索餐厅">
+              <button class="search-clear" id="searchClear" aria-label="清空">×</button>
+            </div>
+            <div class="filter-row" id="filterRow"></div>
+          </div>
+
+          <div class="map-controls">
+            <button class="ctrl-btn" data-action="zoom-in" aria-label="放大">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+            <button class="ctrl-btn" data-action="zoom-out" aria-label="缩小">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+            </button>
+            <button class="ctrl-btn" data-action="locate" aria-label="定位">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+            </button>
+            <button class="ctrl-btn heat-btn" id="heatBtn" data-action="heat" aria-label="热力图层" aria-pressed="false">
+              <span class="heat-dot"></span>
+            </button>
+            <button class="ctrl-btn base-btn" id="baseBtn" data-action="base" aria-label="切换底图" aria-pressed="false">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/></svg>
+            </button>
+          </div>
+
+          <div class="map-notice" id="mapNotice" hidden>
+            <span id="mapNoticeText"></span>
+            <button type="button" data-action="dismiss-notice" aria-label="关闭提示">×</button>
+          </div>
+
+          <div class="preview-wrap" id="previewWrap"></div>
+        </section>
+
+        <!-- ============ 榜单 ============ -->
+        <section class="view" id="view-rank" data-view="rank">
+          <div class="scroll-pad">
+            <div class="view-head">
+              <p class="view-eyebrow">评分 ≥ 4.5 · 上海</p>
+              <h1 class="view-title">高分避雷榜</h1>
+              <p class="view-sub">评分越漂亮、吐槽越具体，排得越靠前。先看雷点，再决定去不去。</p>
+            </div>
+
+            <div class="seg" id="sortSeg" role="tablist">
+              <button data-sort="gap" class="is-on" role="tab">落差最大</button>
+              <button data-sort="heat" role="tab">避雷指数</button>
+              <button data-sort="rating" role="tab">评分最高</button>
+            </div>
+
+            <div class="venue-list" id="rankList"></div>
+            <p class="list-note">共 <span id="rankCount">0</span> 家 · 数据为虚构示例，不构成消费建议</p>
+            <div class="form-bottom-space"></div>
+          </div>
+        </section>
+
+        <!-- ============ 上报 ============ -->
+        <section class="view" id="view-report" data-view="report">
+          <div class="scroll-pad">
+            <div class="view-head report-head">
+              <p class="view-eyebrow">匿名 · 2 分钟</p>
+              <h1 class="view-title">这家店，你踩过什么雷？</h1>
+              <p class="view-sub">只写你亲身经历的细节：点了什么、等了多久、哪里不对。具体，才有用。</p>
+            </div>
+
+            <form id="reportForm" autocomplete="off" novalidate>
+              <div class="field">
+                <label class="field-label" for="placeName">餐厅名称</label>
+                <input class="input" id="placeName" placeholder="例如：炭与盐·和牛烧肉" maxlength="30">
+              </div>
+
+              <div class="field">
+                <span class="field-label">菜系</span>
+                <div class="chip-grid" id="cuisineChips"></div>
+              </div>
+
+              <div class="field">
+                <span class="field-label">商圈</span>
+                <div class="chip-grid" id="areaChips"></div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="ratingInput">平台评分 <span class="opt">选填，新店填这里</span></label>
+                <input class="input" id="ratingInput" type="number" inputmode="decimal" min="0" max="5" step="0.1" placeholder="4.6">
+              </div>
+
+              <div class="field">
+                <span class="field-label">你给几分 <span class="opt">1–5 星</span></span>
+                <div class="stars" id="starRow" role="radiogroup" aria-label="评分">
+                  <button type="button" data-star="1" aria-label="1 星">★</button>
+                  <button type="button" data-star="2" aria-label="2 星">★</button>
+                  <button type="button" data-star="3" aria-label="3 星">★</button>
+                  <button type="button" data-star="4" aria-label="4 星">★</button>
+                  <button type="button" data-star="5" aria-label="5 星">★</button>
+                  <span class="star-hint" id="starHint">2 星 · 不太行</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <span class="field-label">踩到什么雷 <span class="opt">可多选</span></span>
+                <div class="chip-grid" id="tagChips"></div>
+              </div>
+
+              <div class="field two-col">
+                <div>
+                  <label class="field-label" for="priceInput">人均 <span class="opt">元</span></label>
+                  <input class="input" id="priceInput" type="number" inputmode="numeric" placeholder="180" min="0" max="9999">
+                </div>
+                <div>
+                  <span class="field-label">排队</span>
+                  <select class="input" id="queueSelect">
+                    <option value="0">没排队</option>
+                    <option value="20">20 分钟内</option>
+                    <option value="30">半小时左右</option>
+                    <option value="60">1 小时以上</option>
+                    <option value="120">2 小时以上</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="field-label" for="note">一句话说清楚 <span class="opt">选填，最多 60 字</span></label>
+                <textarea class="input textarea" id="note" rows="3" maxlength="60" placeholder="例如：排队 90 分钟，和牛拼盘只有六片，炭火另收 20。"></textarea>
+                <p class="hint"><span id="noteCount">0</span>/60</p>
+              </div>
+
+              <div class="field">
+                <span class="field-label">照片 <span class="opt">选填</span></span>
+                <button type="button" class="photo-add" data-action="add-photo">
+                  <span class="photo-plus">+</span>
+                  <span>添加照片</span>
+                </button>
+              </div>
+
+              <div class="field row-field">
+                <div>
+                  <span class="field-label">匿名提交</span>
+                  <p class="hint">不展示昵称，只保留商圈与时间。</p>
+                </div>
+                <button type="button" class="switch is-on" id="anonSwitch" role="switch" aria-checked="true"><i></i></button>
+              </div>
+
+              <p class="disclaimer">请只写亲身经历，避免人身攻击与未经证实的指控。恶意差评会被下架。</p>
+              <button class="btn btn-primary submit" type="submit">提交避雷记录</button>
+              <div class="form-bottom-space"></div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ============ 我的 ============ -->
+        <section class="view" id="view-me" data-view="me">
+          <div class="scroll-pad">
+            <div class="me-hero">
+              <div class="me-top">
+                <div class="avatar">吃</div>
+                <div class="me-id">
+                  <p class="me-name">不愿透露姓名的饭搭子</p>
+                  <p class="me-tag">已避雷 12 天 · 上海</p>
+                </div>
+                <button class="me-edit" data-action="about">设置</button>
+              </div>
+              <div class="me-stats">
+                <div class="me-stat"><b id="statSaved">0</b><span>避雷清单</span></div>
+                <div class="me-stat"><b id="statReports">0</b><span>我的记录</span></div>
+                <div class="me-stat"><b id="statHelped">0</b><span>帮到人次</span></div>
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-head"><h2>我的避雷清单</h2><span class="section-hint" id="savedHint">收藏后会显示在这里</span></div>
+              <div id="savedList"></div>
+            </div>
+
+            <div class="section">
+              <div class="section-head"><h2>我的记录</h2><span class="section-hint" id="myHint">提交后会显示在这里</span></div>
+              <div id="myReports"></div>
+            </div>
+
+            <div class="section">
+              <div class="section-head"><h2>设置</h2></div>
+              <div class="rows">
+                <button class="row" data-action="toggle-alerts">
+                  <span class="row-icon">🔔</span>
+                  <span class="row-main"><b>榜单更新提醒</b><em>关注的商圈出现新避雷记录时通知我</em></span>
+                  <span class="switch is-on" id="alertsSwitch" role="switch" aria-checked="true"><i></i></span>
+                </button>
+                <button class="row" data-action="guide">
+                  <span class="row-icon">📐</span>
+                  <span class="row-main"><b>榜单规则</b><em>避雷指数怎么算、什么不收录</em></span>
+                  <span class="chev-r">›</span>
+                </button>
+                <button class="row" data-action="data-note">
+                  <span class="row-icon">🛡</span>
+                  <span class="row-main"><b>数据与隐私</b><em>信息来源、纠错与匿名机制</em></span>
+                  <span class="chev-r">›</span>
+                </button>
+                <button class="row" data-action="about">
+                  <span class="row-icon">◇</span>
+                  <span class="row-main"><b>关于避雷吧</b><em>v0.1 演示原型</em></span>
+                  <span class="chev-r">›</span>
+                </button>
+              </div>
+            </div>
+
+            <p class="me-foot">避雷吧 · 高分餐厅避雷地图<br>本原型内的餐厅与记录均为虚构示例</p>
+            <div class="form-bottom-space"></div>
+          </div>
+        </section>
+
+      </main>
+
+      <nav class="tabbar" aria-label="主导航">
+        <button class="tab is-active" data-tab="map">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 4 3.6 6.2v13.4L9 17.4l6 2.2 5.4-2.2V4L15 6.2 9 4Z"/><path d="M9 4v13.4M15 6.2v13.4"/></svg>
+          <span>地图</span>
+        </button>
+        <button class="tab" data-tab="rank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+          <span>榜单</span>
+        </button>
+        <button class="tab tab-action" data-tab="report">
+          <span class="tab-fab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg></span>
+          <span>上报</span>
+        </button>
+        <button class="tab" data-tab="me">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8.4" r="3.6"/><path d="M4.8 20c1.1-3.6 3.8-5.4 7.2-5.4s6.1 1.8 7.2 5.4"/></svg>
+          <span>我的</span>
+        </button>
+      </nav>
+
+      <div class="home-bar" aria-hidden="true"><i></i></div>
+
+      <div class="sheet-backdrop" id="sheetBackdrop"></div>
+      <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="详情">
+        <div class="sheet-grip"></div>
+        <div class="sheet-body" id="sheetBody"></div>
+      </div>
+
+      <div class="toast" id="toast" role="status"></div>
+    </div>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<!-- 本地 Key 覆盖：config.local.js 已被 .gitignore 忽略，公开仓库里没有这个文件，
+     加载失败只会回退到示意底图，不影响任何功能。 -->
+<script src="config.local.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
